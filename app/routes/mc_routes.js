@@ -7,28 +7,68 @@ module.exports = function(app, db) {
     app.put('/users/:id', (req, res) => {
         const id = req.params.id;
         const details = { '_id': new ObjectID(id) };
-        const user = { name: req.body.name, info: req.body.info };
-        db.collection('users').update(details, user, (err, result) => {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                res.send(user);
-            } 
-        });
-    });
-
-    // get cards
-    app.get('/users/:id', (req, res) => {
-        const id = req.params.id;
-        const details = { '_id': new ObjectID(id) };
         db.collection('users').findOne(details, (err, item) => {
             if (err) {
                 res.send({'error':'An error has occurred'});
             } else {
-                res.send(item.info);
-            }
+                const user = { name: req.body.name, info: req.body.info, password: item.password };
+                db.collection('users').update(details, user, (err, result) => {
+                    if (err) {
+                        res.send({'error':'An error has occurred'});
+                    } else {
+                        res.send(user);
+                    } 
+                });
+            } 
         });
     });
+
+    // // get cards
+    // app.get('/users/:id', (req, res) => {
+    //     const id = req.params.id;
+    //     const details = { '_id': new ObjectID(id) };
+    //     db.collection('users').findOne(details, (err, item) => {
+    //         if (err) {
+    //             res.send({'error':'An error has occurred'});
+    //         } else {
+    //             res.send(item.info);
+    //         }
+    //     });
+    // });
+
+    // auth
+    app.post('/users/:id', (req, res) => {
+        const id = req.params.id;
+        const details = { "_id": new ObjectID(id), "password": req.body.password };
+        db.collection('users').findOne(details, (err, item) => {
+            if (err) {
+                res.send({'error':'An error has occurred'});
+            } else {
+                if (item) {
+                    res.send(item.info);
+                } else {
+                    res.send([])
+                }
+            }
+        })
+    })
+
+    //reg
+    app.post('/users', (req, res) => {
+        const { name, password } = req.body;
+        const user = { name: name, password: password, info: cardsInfo };
+        db.collection('users').insert(user, (err, result) => {
+            if (err) { 
+                res.send({ 'error': 'An error has occurred' }); 
+            } else {
+                let newUser = result.ops[0];
+                res.send({
+                    id: newUser._id,
+                    info: newUser.info
+                });
+            }
+        });
+    })
 
     // get all users
     app.get('/users', (req, res) => {
@@ -46,15 +86,15 @@ module.exports = function(app, db) {
         })
     })
 
-    // add new user (if not exists)
-    app.post('/users', (req, res) => {
-        const user = { name: req.body.name, info: cardsInfo };
-        db.collection('users').insert(user, (err, result) => {
-            if (err) { 
-              res.send({ 'error': 'An error has occurred' }); 
-            } else {
-              res.send(result.ops[0]);
-            }
-        });
-    });
+    // // add new user (if not exists)
+    // app.post('/users', (req, res) => {
+    //     const user = { name: req.body.name, info: cardsInfo };
+    //     db.collection('users').insert(user, (err, result) => {
+    //         if (err) { 
+    //           res.send({ 'error': 'An error has occurred' }); 
+    //         } else {
+    //           res.send(result.ops[0]);
+    //         }
+    //     });
+    // });
 };
