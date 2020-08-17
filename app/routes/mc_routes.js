@@ -3,6 +3,10 @@ const cardsInfo = require('../../cardsInfo');
 
 module.exports = function(app, db) {
 
+    app.get('/users/ping', (_, res) => {
+        res.send('ping');
+    })
+
     // update cards
     app.put('/users/:id', (req, res) => {
         const id = req.params.id;
@@ -22,19 +26,6 @@ module.exports = function(app, db) {
             } 
         });
     });
-
-    // // get cards
-    // app.get('/users/:id', (req, res) => {
-    //     const id = req.params.id;
-    //     const details = { '_id': new ObjectID(id) };
-    //     db.collection('users').findOne(details, (err, item) => {
-    //         if (err) {
-    //             res.send({'error':'An error has occurred'});
-    //         } else {
-    //             res.send(item.info);
-    //         }
-    //     });
-    // });
 
     // auth
     app.post('/users/:id', (req, res) => {
@@ -85,16 +76,4 @@ module.exports = function(app, db) {
             }
         })
     })
-
-    // // add new user (if not exists)
-    // app.post('/users', (req, res) => {
-    //     const user = { name: req.body.name, info: cardsInfo };
-    //     db.collection('users').insert(user, (err, result) => {
-    //         if (err) { 
-    //           res.send({ 'error': 'An error has occurred' }); 
-    //         } else {
-    //           res.send(result.ops[0]);
-    //         }
-    //     });
-    // });
 };
